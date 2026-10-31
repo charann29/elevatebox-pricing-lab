@@ -64,16 +64,18 @@ const callCost=callAdv+callLK,chatCost=chatAdv+chatLK;
 const fixed=s.host+s.db+s.mau*s.otpPer*s.otpRate,infraU=fixed/s.mau;
 const paid=s.mau*s.conv/100,free=s.mau-paid,uf=s.use/100,fee=s.payFee/100;
 const freeU=s.freeChats*chatCost+s.freeCalls*callCost+infraU;
-const pRev=s.price/12,pUse=(s.paidChats*chatCost+s.paidCalls*callCost)*uf/12;
-const paidU=pUse+infraU+pRev*fee,paidM=pRev-paidU;
+const pRev=s.price/12;
+// ONE formula for paid-user economics, used by display AND recommendation
+const econ=c=>{const use=(s.paidChats*chatCost+c*callCost)*uf/12,cost=use+infraU+pRev*fee;return{use,cost,m:pRev-cost,pct:(pRev-cost)/pRev}};
+const E=econ(s.paidCalls),pUse=E.use,paidU=E.cost,paidM=E.m;
 const topSpend=paid*s.topPct/100*s.topAmt,topCalls=topSpend/(s.callLen*s.rateCall);
 const callsM=free*s.freeCalls+paid*s.paidCalls*uf/12+topCalls,chatsM=free*s.freeChats+paid*s.paidChats*uf/12;
 const pm=callsM*s.callLen*2+(s.chatLK?chatsM*s.chatLen*2:0),L=lk(pm);
 const adv=callsM*callAdv+chatsM*chatAdv,otp=s.mau*s.otpPer*s.otpRate,fees=(paid*pRev+topSpend)*fee;
 const bill=L.c+s.host+s.db+otp+adv+fees,rev=paid*pRev+topSpend,profit=rev-bill;
 // recommended calls at target margin, keeping chats
-const budgetYr=s.price*(1-fee)*(1-s.margin/100)-infraU*12-s.paidChats*chatCost*uf;
-const recCalls=Math.max(0,Math.floor(budgetYr/(callCost*uf)));
+let recCalls=0;while(recCalls<10000&&econ(recCalls+1).pct>=s.margin/100)recCalls++;
+if(econ(0).pct<s.margin/100)recCalls=0;window._rec=recCalls;window._econ=econ;
 // free affordability within budget
 const room=s.budget-(L.c+s.host+s.db+otp+fees)-(paid*paidU-paid*infraU-paid*pRev*fee)+(topSpend-topCalls*callCost);
 const freeCallsAff=Math.max(0,room/free/callCost),freeChatsAff=Math.max(0,room/free/chatCost);
@@ -82,17 +84,18 @@ const bePaid=Math.ceil((s.host+s.db+otp+free*varFree)/Math.max(.01,contribPaid-0
 const tc=a=>`${Math.floor(a/(s.chatLen*s.rateChat))} chats or ${Math.floor(a/(s.callLen*s.rateCall))} calls`;
 document.getElementById('kpis').innerHTML=[["Advisor cost per call",R2(callAdv)],["Our cost per call",R2(callCost)],["Cost per paid user / mo",R2(paidU)],["Margin per paid user / mo",`<span class="${cls(paidM)}">${R2(paidM)}</span>`],["Monthly bill",R(bill)],["Monthly profit",`<span class="${cls(profit)}">${R(profit)}</span>`]].map(k=>`<div class="kpi"><span>${k[0]}</span><b>${k[1]}</b></div>`).join('');
 document.getElementById('plans').innerHTML=`<div class="plan"><b>Free</b><div class="p">₹0</div>${s.freeChats} chats + ${s.freeCalls} calls every month</div>
-<div class="plan hot"><b>Paid</b><div class="p">₹${s.price}<small>/year</small></div>${s.paidChats} chats + ${s.paidCalls} calls per year<br><small>Recommended: ${recCalls} calls at ${s.margin}% margin</small></div>
+<div class="plan hot"><b>Paid</b><div class="p">₹${s.price}<small>/year</small></div>${s.paidChats} chats + ${s.paidCalls} calls per year<br><small>Recommended: ${recCalls} calls (${(econ(recCalls).pct*100).toFixed(1)}% margin, target ${s.margin}%)</small><br><button onclick="applyRec()" style="margin-top:6px;font:inherit;background:var(--navy);color:#fff;border:0;border-radius:7px;padding:5px 10px;cursor:pointer">Apply recommendation</button></div>
 <div class="plan"><b>Top-up wallet</b><div class="p">₹50+</div>₹100 = ${tc(100)}<br><small>Use any time after plan runs out</small></div>`;
 const t=(id,h,r)=>document.getElementById(id).innerHTML=(h?`<tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>`:'')+r.map(x=>`<tr class="${x[9]||''}">${x.slice(0,9).filter(v=>v!==undefined).map(v=>`<td>${v}</td>`).join('')}</tr>`).join('');
 t('unit',['','Chat','Call'],[["Length",s.chatLen+' min',s.callLen+' min'],["Advisor payout",R2(chatAdv),R2(callAdv)],["LiveKit (user + advisor)",R2(chatLK),R2(callLK)],["Our cost",R2(chatCost),R2(callCost)],["User pays via top-up",R2(s.chatLen*s.rateChat),R2(s.callLen*s.rateCall)],["Our margin",R2(s.chatLen*s.rateChat-chatCost),R2(s.callLen*s.rateCall-callCost)]]);
-t('peruser',['','Free','Paid'],[["Revenue",R2(0),R2(pRev)],["Conversations cost",R2(freeU-infraU),R2(pUse)],["Hosting, DB, OTP share",R2(infraU),R2(infraU)],["Payment fee",R2(0),R2(pRev*fee)],["Total cost",R2(freeU),R2(paidU)],["Margin",`<span class="neg">${R2(-freeU)}</span>`,`<span class="${cls(paidM)}">${R2(paidM)}</span>`]]);
+t('peruser',['','Free','Paid'],[["Revenue",R2(0),R2(pRev)],["Conversations cost",R2(freeU-infraU),R2(pUse)],["Hosting, DB, OTP share",R2(infraU),R2(infraU)],["Payment fee",R2(0),R2(pRev*fee)],["Total cost",R2(freeU),R2(paidU)],["Margin",`<span class="neg">${R2(-freeU)}</span>`,`<span class="${cls(paidM)}">${R2(paidM)} (${(E.pct*100).toFixed(1)}%)</span>`]]);
 t('topups',['Top-up','User gets','Our margin'],[50,100,200,500].map(a=>{const m=a-a*fee-(a/(s.callLen*s.rateCall))*callCost;return[R(a),tc(a),`<span class="${cls(m)}">${R(m)}</span>`]}));
 t('answers',null,[["Free chats affordable / free user / mo (budget "+R(s.budget)+")",freeChatsAff.toFixed(1)],["or free calls affordable / free user / mo",freeCallsAff.toFixed(1)],["Recommended calls in ₹"+s.price+" plan",recCalls+" calls + "+s.paidChats+" chats / yr"],["Paid users to break even",N(bePaid)+" ("+(bePaid/s.mau*100).toFixed(1)+"% of MAU)"],["Paid users now",N(paid)],["LiveKit plan picked",L.p+" · "+N(pm)+" participant-min"]]);
 rows=[["LiveKit ("+L.p+")",L.c],["Azure / hosting",s.host],["Database + backups",s.db],["OTP",otp],["Advisor payouts",adv],["Payment fees",fees]];
 const tot=bill;t('bill',['Item','Monthly','3 months'],[...rows.map(r=>[r[0],R(r[1]),R(r[1]*3)]),["Total bill",R(tot),R(tot*3),,,,,,,'tot'],["Revenue (plans earned + top-ups)",R(rev),R(rev*3)],["Profit / loss",`<span class="${cls(profit)}">${R(profit)}</span>`,`<span class="${cls(profit)}">${R(profit*3)}</span>`,,,,,,,'tot'],["Within budget?",bill-rev<=s.budget?'<span class="pos">Yes</span>':'<span class="neg">No</span>',""],["Upfront cash if paid users buy yearly",R(paid*s.price),""]]);
 rows.push(["TOTAL",tot],["Revenue",rev],["Profit",profit]);
 history.replaceState(null,'','#'+new URLSearchParams(Object.entries(S).filter(([k,v])=>v!==D[k])).toString());lucide.createIcons()}
+function applyRec(){S.paidCalls=window._rec;document.getElementById('paidCalls').value=S.paidCalls;calc()}
 function share(){navigator.clipboard.writeText(location.href);alert('Link copied')}
 function reset(){location.hash='';location.reload()}
 function csv(){let c='Item,Monthly INR,3 months INR\n'+rows.map(r=>`"${r[0]}",${Math.round(r[1])},${Math.round(r[1]*3)}`).join('\n')+'\n\nInput,Value\n'+Object.entries(S).map(e=>e.join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/csv'}));a.download='elevatebox-pricing.csv';a.click()}
