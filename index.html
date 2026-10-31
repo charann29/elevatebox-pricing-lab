@@ -1,0 +1,100 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ElevateBox · Guidance Platform Pricing Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<style>
+:root{--ink:#172238;--navy:#101a2b;--sub:#657389;--blue:#3158e7;--blue2:#ebf0ff;--aqua:#19ad99;--red:#d34b56;--amber:#d38b28;--line:#e3e9f1;--bg:#f6f8fc}
+*{box-sizing:border-box}body{margin:0;font-family:Lexend,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+header{background:var(--navy);color:#fff;padding:18px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header b{font-size:20px}header small{color:#aab6cc;display:block}
+.btns button{font:inherit;background:#22304a;color:#fff;border:0;border-radius:8px;padding:8px 12px;margin-left:6px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.wrap{display:grid;grid-template-columns:340px 1fr;gap:20px;padding:20px 28px;max-width:1400px;margin:auto}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 8px 32px rgba(24,40,79,.045);margin-bottom:16px}
+h3{margin:0 0 10px;font-size:15px;display:flex;gap:8px;align-items:center}h3 svg{width:18px;color:var(--blue)}
+details{border-top:1px solid var(--line);padding:8px 0}summary{cursor:pointer;font-weight:600}
+label{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:7px 0;color:var(--sub);font-size:13px}
+input,select{width:110px;font:inherit;padding:5px 7px;border:1px solid var(--line);border-radius:7px;text-align:right}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}.kpi span{color:var(--sub);font-size:12px}.kpi b{display:block;font-size:22px;margin-top:4px}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}@media(max-width:700px){.plans{grid-template-columns:1fr}}
+.plan{border:1px solid var(--line);border-radius:12px;padding:14px}.plan.hot{border-color:var(--blue);background:var(--blue2)}
+.plan .p{font-size:24px;font-weight:700}
+table{width:100%;border-collapse:collapse}td,th{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}th{color:var(--sub);font-weight:500;font-size:12px}
+tr.tot td{font-weight:700;border-top:2px solid var(--ink)}
+.pos{color:var(--aqua)}.neg{color:var(--red)}.tag{font-size:11px;background:#fff4e3;color:var(--amber);padding:2px 6px;border-radius:5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+footer{text-align:center;color:var(--sub);padding:20px;font-size:12px}
+@media print{.btns,aside{display:none}.wrap{grid-template-columns:1fr}}
+</style></head><body>
+<header><div><b>ElevateBox</b> · Guidance Platform Pricing<small>Prepared by Sai Charan L, Founder, ElevateBox · All vendor numbers are estimates</small></div>
+<div class="btns"><button onclick="share()"><i data-lucide="link"></i>Copy link</button><button onclick="csv()"><i data-lucide="download"></i>CSV</button><button onclick="print()"><i data-lucide="printer"></i>Print</button><button onclick="reset()"><i data-lucide="rotate-ccw"></i>Reset</button></div></header>
+<div class="wrap"><aside class="card" id="inputs"></aside><main>
+<div class="kpis" id="kpis"></div>
+<div class="card"><h3><i data-lucide="layers"></i>Plans users see</h3><div class="plans" id="plans"></div></div>
+<div class="grid2">
+<div class="card"><h3><i data-lucide="calculator"></i>Cost per conversation</h3><table id="unit"></table></div>
+<div class="card"><h3><i data-lucide="users"></i>Per user, per month</h3><table id="peruser"></table></div></div>
+<div class="grid2">
+<div class="card"><h3><i data-lucide="wallet"></i>Top-ups (what users see)</h3><table id="topups"></table></div>
+<div class="card"><h3><i data-lucide="target"></i>Answers</h3><table id="answers"></table></div></div>
+<div class="card"><h3><i data-lucide="receipt"></i>Bill: monthly and 3 months <span class="tag">estimate</span></h3><table id="bill"></table></div>
+</main></div><footer>ElevateBox · elevatebox.in · Planning model, not a vendor quotation. Excludes GST, salaries, marketing, development.</footer>
+<script>
+const F=[
+["Users",[["reg","Registered users",100000],["mau","Monthly active users",10000],["conv","Paid conversion %",20],["topPct","Paid users who top up %",15],["topAmt","Avg top-up per month ₹",100]]],
+["Plans",[["freeChats","Free: chats / month",2],["freeCalls","Free: calls / month",0],["price","Paid plan ₹ / year",360],["paidChats","Paid: chats / year",24],["paidCalls","Paid: calls / year",10],["use","Paid allowance actually used %",70]]],
+["Conversation",[["chatLen","Avg chat length (min)",8],["callLen","Avg call length (min)",8],["payCall","Advisor ₹ / call minute",1],["payChat","Advisor ₹ / chat minute",0.2]]],
+["Top-up selling rates",[["rateCall","Call ₹ / minute",3],["rateChat","Chat ₹ / minute",1]]],
+["Targets",[["budget","Monthly budget ₹",80000],["margin","Target margin on paid %",30]]],
+["LiveKit (estimate)",[["shipBase","Ship base $",50],["shipInc","Ship included min",150000],["shipRate","Ship extra $/min",0.0005],["scBase","Scale base $",500],["scInc","Scale included min",1500000],["scRate","Scale extra $/min",0.0004],["chatLK","Chat on LiveKit? (1=yes)",0],["usd","USD → INR",94.91]]],
+["Other costs (estimate)",[["host","Azure / hosting ₹/mo",12000],["db","Database + backups ₹/mo",3000],["otpRate","OTP ₹ each",0.15],["otpPer","OTPs per MAU / month",2],["payFee","Payment gateway fee %",2]]]];
+const D={};F.forEach(g=>g[1].forEach(f=>D[f[0]]=f[2]));let S={...D};
+try{const q=new URLSearchParams(location.hash.slice(1));for(const[k,v]of q)if(k in D)S[k]=+v}catch(e){}
+const inp=document.getElementById('inputs');
+inp.innerHTML='<h3><i data-lucide="sliders-horizontal"></i>Edit numbers</h3>'+F.map((g,i)=>`<details ${i<5?'open':''}><summary>${g[0]}</summary>${g[1].map(f=>`<label>${f[1]}<input type="number" step="any" id="${f[0]}" value="${S[f[0]]}"></label>`).join('')}</details>`).join('');
+inp.addEventListener('input',e=>{S[e.target.id]=+e.target.value||0;calc()});
+const R=n=>'₹'+Math.round(n).toLocaleString('en-IN'),R2=n=>'₹'+n.toFixed(2),N=n=>Math.round(n).toLocaleString('en-IN');
+const cls=n=>n>=0?'pos':'neg';let rows=[];
+function lk(pm){const a=S.shipBase+Math.max(0,pm-S.shipInc)*S.shipRate,b=S.scBase+Math.max(0,pm-S.scInc)*S.scRate;return a<=b?{c:a*S.usd,p:'Ship'}:{c:b*S.usd,p:'Scale'}}
+function calc(){const s=S,u=s.usd,rate=s.scRate*u;
+const callAdv=s.callLen*s.payCall,chatAdv=s.chatLen*s.payChat;
+const callLK=s.callLen*2*rate,chatLK=s.chatLK?s.chatLen*2*rate:0;
+const callCost=callAdv+callLK,chatCost=chatAdv+chatLK;
+const fixed=s.host+s.db+s.mau*s.otpPer*s.otpRate,infraU=fixed/s.mau;
+const paid=s.mau*s.conv/100,free=s.mau-paid,uf=s.use/100,fee=s.payFee/100;
+const freeU=s.freeChats*chatCost+s.freeCalls*callCost+infraU;
+const pRev=s.price/12,pUse=(s.paidChats*chatCost+s.paidCalls*callCost)*uf/12;
+const paidU=pUse+infraU+pRev*fee,paidM=pRev-paidU;
+const topSpend=paid*s.topPct/100*s.topAmt,topCalls=topSpend/(s.callLen*s.rateCall);
+const callsM=free*s.freeCalls+paid*s.paidCalls*uf/12+topCalls,chatsM=free*s.freeChats+paid*s.paidChats*uf/12;
+const pm=callsM*s.callLen*2+(s.chatLK?chatsM*s.chatLen*2:0),L=lk(pm);
+const adv=callsM*callAdv+chatsM*chatAdv,otp=s.mau*s.otpPer*s.otpRate,fees=(paid*pRev+topSpend)*fee;
+const bill=L.c+s.host+s.db+otp+adv+fees,rev=paid*pRev+topSpend,profit=rev-bill;
+// recommended calls at target margin, keeping chats
+const budgetYr=s.price*(1-fee)*(1-s.margin/100)-infraU*12-s.paidChats*chatCost*uf;
+const recCalls=Math.max(0,Math.floor(budgetYr/(callCost*uf)));
+// free affordability within budget
+const room=s.budget-(L.c+s.host+s.db+otp+fees)-(paid*paidU-paid*infraU-paid*pRev*fee)+(topSpend-topCalls*callCost);
+const freeCallsAff=Math.max(0,room/free/callCost),freeChatsAff=Math.max(0,room/free/chatCost);
+const contribPaid=pRev*(1-fee)-pUse;const varFree=freeU-infraU;
+const bePaid=Math.ceil((s.host+s.db+otp+free*varFree)/Math.max(.01,contribPaid-0));
+const tc=a=>`${Math.floor(a/(s.chatLen*s.rateChat))} chats or ${Math.floor(a/(s.callLen*s.rateCall))} calls`;
+document.getElementById('kpis').innerHTML=[["Advisor cost per call",R2(callAdv)],["Our cost per call",R2(callCost)],["Cost per paid user / mo",R2(paidU)],["Margin per paid user / mo",`<span class="${cls(paidM)}">${R2(paidM)}</span>`],["Monthly bill",R(bill)],["Monthly profit",`<span class="${cls(profit)}">${R(profit)}</span>`]].map(k=>`<div class="kpi"><span>${k[0]}</span><b>${k[1]}</b></div>`).join('');
+document.getElementById('plans').innerHTML=`<div class="plan"><b>Free</b><div class="p">₹0</div>${s.freeChats} chats + ${s.freeCalls} calls every month</div>
+<div class="plan hot"><b>Paid</b><div class="p">₹${s.price}<small>/year</small></div>${s.paidChats} chats + ${s.paidCalls} calls per year<br><small>Recommended: ${recCalls} calls at ${s.margin}% margin</small></div>
+<div class="plan"><b>Top-up wallet</b><div class="p">₹50+</div>₹100 = ${tc(100)}<br><small>Use any time after plan runs out</small></div>`;
+const t=(id,h,r)=>document.getElementById(id).innerHTML=(h?`<tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>`:'')+r.map(x=>`<tr class="${x[9]||''}">${x.slice(0,9).filter(v=>v!==undefined).map(v=>`<td>${v}</td>`).join('')}</tr>`).join('');
+t('unit',['','Chat','Call'],[["Length",s.chatLen+' min',s.callLen+' min'],["Advisor payout",R2(chatAdv),R2(callAdv)],["LiveKit (user + advisor)",R2(chatLK),R2(callLK)],["Our cost",R2(chatCost),R2(callCost)],["User pays via top-up",R2(s.chatLen*s.rateChat),R2(s.callLen*s.rateCall)],["Our margin",R2(s.chatLen*s.rateChat-chatCost),R2(s.callLen*s.rateCall-callCost)]]);
+t('peruser',['','Free','Paid'],[["Revenue",R2(0),R2(pRev)],["Conversations cost",R2(freeU-infraU),R2(pUse)],["Hosting, DB, OTP share",R2(infraU),R2(infraU)],["Payment fee",R2(0),R2(pRev*fee)],["Total cost",R2(freeU),R2(paidU)],["Margin",`<span class="neg">${R2(-freeU)}</span>`,`<span class="${cls(paidM)}">${R2(paidM)}</span>`]]);
+t('topups',['Top-up','User gets','Our margin'],[50,100,200,500].map(a=>{const m=a-a*fee-(a/(s.callLen*s.rateCall))*callCost;return[R(a),tc(a),`<span class="${cls(m)}">${R(m)}</span>`]}));
+t('answers',null,[["Free chats affordable / free user / mo (budget "+R(s.budget)+")",freeChatsAff.toFixed(1)],["or free calls affordable / free user / mo",freeCallsAff.toFixed(1)],["Recommended calls in ₹"+s.price+" plan",recCalls+" calls + "+s.paidChats+" chats / yr"],["Paid users to break even",N(bePaid)+" ("+(bePaid/s.mau*100).toFixed(1)+"% of MAU)"],["Paid users now",N(paid)],["LiveKit plan picked",L.p+" · "+N(pm)+" participant-min"]]);
+rows=[["LiveKit ("+L.p+")",L.c],["Azure / hosting",s.host],["Database + backups",s.db],["OTP",otp],["Advisor payouts",adv],["Payment fees",fees]];
+const tot=bill;t('bill',['Item','Monthly','3 months'],[...rows.map(r=>[r[0],R(r[1]),R(r[1]*3)]),["Total bill",R(tot),R(tot*3),,,,,,,'tot'],["Revenue (plans earned + top-ups)",R(rev),R(rev*3)],["Profit / loss",`<span class="${cls(profit)}">${R(profit)}</span>`,`<span class="${cls(profit)}">${R(profit*3)}</span>`,,,,,,,'tot'],["Within budget?",bill-rev<=s.budget?'<span class="pos">Yes</span>':'<span class="neg">No</span>',""],["Upfront cash if paid users buy yearly",R(paid*s.price),""]]);
+rows.push(["TOTAL",tot],["Revenue",rev],["Profit",profit]);
+history.replaceState(null,'','#'+new URLSearchParams(Object.entries(S).filter(([k,v])=>v!==D[k])).toString());lucide.createIcons()}
+function share(){navigator.clipboard.writeText(location.href);alert('Link copied')}
+function reset(){location.hash='';location.reload()}
+function csv(){let c='Item,Monthly INR,3 months INR\n'+rows.map(r=>`"${r[0]}",${Math.round(r[1])},${Math.round(r[1]*3)}`).join('\n')+'\n\nInput,Value\n'+Object.entries(S).map(e=>e.join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/csv'}));a.download='elevatebox-pricing.csv';a.click()}
+calc();
+</script></body></html>
