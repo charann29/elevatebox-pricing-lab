@@ -24,12 +24,12 @@ table{width:100%;border-collapse:collapse}td,th{padding:7px 6px;border-bottom:1p
 tr.tot td{font-weight:700;border-top:2px solid var(--ink)}
 .pos{color:var(--aqua)}.neg{color:var(--red)}.tag{font-size:11px;background:#fdf2dc;color:var(--amber);padding:2px 6px;border-radius:5px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:900px){.grid2{grid-template-columns:1fr}}
-footer{text-align:center;color:var(--sub);padding:20px;font-size:12px}
+#sticky{position:fixed;top:12px;right:16px;z-index:9;background:var(--navy);color:#fff;border-radius:14px;padding:10px 16px;text-align:right;box-shadow:0 8px 24px rgba(1,49,134,.3)}#sticky b{display:block;font-size:30px;line-height:1.15}#sticky small{color:#c9d6f2;font-size:11px}header{padding-right:260px!important}@media(max-width:700px){#sticky b{font-size:20px}header{padding-right:28px!important;padding-top:90px!important}}footer{text-align:center;color:var(--sub);padding:20px;font-size:12px}
 @media print{.btns,aside{display:none}.wrap{grid-template-columns:1fr}}
 </style></head><body>
 <header><div style="display:flex;gap:14px;align-items:center"><img src="elevatebox-logo.svg" alt="ElevateBox" height="40"><div><b>Guidance Platform Pricing</b><small>Prepared by Sai Charan L, Founder, ElevateBox · All vendor numbers are estimates</small></div></div>
 <div class="btns"><button onclick="share()"><i data-lucide="link"></i>Copy link</button><button onclick="csv()"><i data-lucide="download"></i>CSV</button><button onclick="print()"><i data-lucide="printer"></i>Print</button><button onclick="reset()"><i data-lucide="rotate-ccw"></i>Reset</button></div></header>
-<div class="wrap"><aside class="card" id="inputs"></aside><main>
+<div id="sticky"></div><div class="wrap"><aside class="card" id="inputs"></aside><main>
 <div class="kpis" id="kpis"></div>
 <div class="card"><h3><i data-lucide="layers"></i>Plans users see</h3><div class="plans" id="plans"></div></div>
 <div class="grid2">
@@ -42,18 +42,21 @@ footer{text-align:center;color:var(--sub);padding:20px;font-size:12px}
 </main></div><footer>ElevateBox · elevatebox.in · Planning model, not a vendor quotation. Excludes GST, salaries, marketing, development.</footer>
 <script>
 const F=[
-["Users",[["reg","Registered users",100000],["mau","Monthly active users",10000],["conv","Paid conversion %",20],["topPct","Paid users who top up %",15],["topAmt","Avg top-up per month ₹",100]]],
+["Users",[["reg","Registered users",100000,1000,1000000,1000],["mau","Monthly active users",10000,100,1000000,100],["conv","Paid conversion %",20],["topPct","Paid users who top up %",15],["topAmt","Avg top-up per month ₹",100]]],
 ["Plans",[["freeChats","Free: chats / month",2],["freeCalls","Free: calls / month",0],["price","Paid plan ₹ / year",360],["paidChats","Paid: chats / year",24],["paidCalls","Paid: calls / year",10],["use","Paid allowance actually used %",70]]],
 ["Conversation",[["chatLen","Avg chat length (min)",8],["callLen","Avg call length (min)",8],["payCall","Advisor ₹ / call minute",1],["payChat","Advisor ₹ / chat minute",0.2]]],
 ["Top-up selling rates",[["rateCall","Call ₹ / minute",3],["rateChat","Chat ₹ / minute",1]]],
 ["Targets",[["budget","Monthly budget ₹",80000],["margin","Target margin on paid %",30]]],
 ["LiveKit (estimate)",[["shipBase","Ship base $",50],["shipInc","Ship included min",150000],["shipRate","Ship extra $/min",0.0005],["scBase","Scale base $",500],["scInc","Scale included min",1500000],["scRate","Scale extra $/min",0.0004],["chatLK","Chat on LiveKit? (1=yes)",0],["usd","USD → INR",94.91]]],
-["Other costs (estimate)",[["host","Azure / hosting ₹/mo",12000],["db","Database + backups ₹/mo",3000],["otpRate","OTP ₹ each",0.15],["otpPer","OTPs per MAU / month",2],["payFee","Payment gateway fee %",2]]]];
+["Cloud: 1 = AWS Mumbai, 0 = Azure India",[["cloud","Cloud (1 AWS / 0 Azure)",1]]],
+["AWS ap-south-1 (Mumbai)",[["awsEc2","EC2 t4g.medium $/hr",0.0336],["awsEc2N","EC2 app servers (count)",2],["awsAlb","Load balancer $/mo (est)",22],["awsRds","RDS Postgres db.t4g.small $/hr",0.032],["awsRdsGb","RDS storage GB",50],["awsGbRate","RDS gp3 $/GB-mo (est)",0.131],["awsS3Gb","S3 storage GB",100],["awsS3Rate","S3 $/GB-mo (est)",0.025],["awsOutGb","Data out / CDN GB",200],["awsOutRate","CloudFront India $/GB (est)",0.17],["awsCw","CloudWatch + backups $/mo (est)",15]]],
+["Azure Central India (compare)",[["azVm","VM B2s $/hr",0.0416],["azVmN","VMs (count)",2],["azLb","Load balancer $/mo (est)",20],["azDb","Postgres Flexible B2s $/mo (est)",55],["azSt","Storage + backups $/mo (est)",8],["azOut","Bandwidth $/mo (est)",18],["azMon","Monitor $/mo (est)",12]]],
+["OTP, payments, tax",[["otpRate","MSG91 OTP ₹/SMS",0.17],["otpPer","OTPs per MAU / month",2],["payFee","Razorpay fee %",2],["payoutPlan","RazorpayX payouts ₹/mo",825],["lkMb","LiveKit audio MB per participant-min",0.25],["gst","Add 18% GST on vendor bills (1/0)",1]]]];
 const D={};F.forEach(g=>g[1].forEach(f=>D[f[0]]=f[2]));let S={...D};
 try{const q=new URLSearchParams(location.hash.slice(1));for(const[k,v]of q)if(k in D)S[k]=+v}catch(e){}
 const inp=document.getElementById('inputs');
-inp.innerHTML='<h3><i data-lucide="sliders-horizontal"></i>Edit numbers</h3>'+F.map((g,i)=>`<details ${i<5?'open':''}><summary>${g[0]}</summary>${g[1].map(f=>`<label>${f[1]}<input type="number" step="any" id="${f[0]}" value="${S[f[0]]}"></label>`).join('')}</details>`).join('');
-inp.addEventListener('input',e=>{S[e.target.id]=+e.target.value||0;calc()});
+inp.innerHTML='<h3><i data-lucide="sliders-horizontal"></i>Edit numbers</h3>'+F.map((g,i)=>`<details ${i<5?'open':''}><summary>${g[0]}</summary>${g[1].map(f=>f[3]?`<label style="flex-wrap:wrap">${f[1]} <b id="${f[0]}_v" style="color:var(--navy)"></b><input type="range" style="width:100%;accent-color:var(--navy)" min="${f[3]}" max="${f[4]}" step="${f[5]}" id="${f[0]}" value="${S[f[0]]}"></label>`:`<label>${f[1]}<input type="number" step="any" id="${f[0]}" value="${S[f[0]]}"></label>`).join('')}</details>`).join('');
+inp.addEventListener('input',e=>{S[e.target.id]=+e.target.value||0;if(S.mau>S.reg){S.mau=S.reg;document.getElementById('mau').value=S.reg}calc()});
 const R=n=>'₹'+Math.round(n).toLocaleString('en-IN'),R2=n=>'₹'+n.toFixed(2),N=n=>Math.round(n).toLocaleString('en-IN');
 const cls=n=>n>=0?'pos':'neg';let rows=[];
 function lk(pm){const a=S.shipBase+Math.max(0,pm-S.shipInc)*S.shipRate,b=S.scBase+Math.max(0,pm-S.scInc)*S.scRate;return a<=b?{c:a*S.usd,p:'Ship'}:{c:b*S.usd,p:'Scale'}}
@@ -61,7 +64,11 @@ function calc(){const s=S,u=s.usd,rate=s.scRate*u;
 const callAdv=s.callLen*s.payCall,chatAdv=s.chatLen*s.payChat;
 const callLK=s.callLen*2*rate,chatLK=s.chatLK?s.chatLen*2*rate:0;
 const callCost=callAdv+callLK,chatCost=chatAdv+chatLK;
-const fixed=s.host+s.db+s.mau*s.otpPer*s.otpRate,infraU=fixed/s.mau;
+const g=s.gst?1.18:1,HR=730,u$=x=>x*u*g;
+const aws=[["EC2 app servers t4g.medium",`${s.awsEc2N} × $${s.awsEc2}/hr × 730h`,u$(s.awsEc2N*s.awsEc2*HR),"https://instances.vantage.sh/aws/ec2/t4g.medium?region=ap-south-1"],["Application Load Balancer",`$${s.awsAlb}/mo`,u$(s.awsAlb),"https://aws.amazon.com/elasticloadbalancing/pricing/"],["RDS PostgreSQL db.t4g.small",`$${s.awsRds}/hr × 730h`,u$(s.awsRds*HR),"https://instances.vantage.sh/aws/rds/db.t4g.small?region=ap-south-1"],["RDS gp3 storage",`${s.awsRdsGb} GB × $${s.awsGbRate}`,u$(s.awsRdsGb*s.awsGbRate),"https://aws.amazon.com/rds/postgresql/pricing/"],["S3 storage",`${s.awsS3Gb} GB × $${s.awsS3Rate}`,u$(s.awsS3Gb*s.awsS3Rate),"https://aws.amazon.com/s3/pricing/"],["CloudFront / data out",`${s.awsOutGb} GB × $${s.awsOutRate}`,u$(s.awsOutGb*s.awsOutRate),"https://aws.amazon.com/cloudfront/pricing/"],["CloudWatch + backups",`$${s.awsCw}/mo`,u$(s.awsCw),"https://aws.amazon.com/cloudwatch/pricing/"]];
+const az=[["Azure VMs B2s",`${s.azVmN} × $${s.azVm}/hr × 730h`,u$(s.azVmN*s.azVm*HR),"https://instances.vantage.sh/azure/vm/b2s?region=centralindia"],["Azure Load Balancer",`$${s.azLb}/mo`,u$(s.azLb),"https://azure.microsoft.com/pricing/details/load-balancer/"],["Azure DB for PostgreSQL",`$${s.azDb}/mo`,u$(s.azDb),"https://azure.microsoft.com/pricing/details/postgresql/flexible-server/"],["Blob storage + backups",`$${s.azSt}/mo`,u$(s.azSt),"https://azure.microsoft.com/pricing/details/storage/blobs/"],["Bandwidth",`$${s.azOut}/mo`,u$(s.azOut),"https://azure.microsoft.com/pricing/details/bandwidth/"],["Azure Monitor",`$${s.azMon}/mo`,u$(s.azMon),"https://azure.microsoft.com/pricing/details/monitor/"]];
+const cloudItems=s.cloud?aws:az,H=cloudItems.reduce((a,x)=>a+x[2],0),DB=s.payoutPlan*g;window._cloud={aws:aws.reduce((a,x)=>a+x[2],0),az:az.reduce((a,x)=>a+x[2],0)};
+const fixed=H+DB+s.mau*s.otpPer*s.otpRate*g,infraU=fixed/s.mau;
 const paid=s.mau*s.conv/100,free=s.mau-paid,uf=s.use/100,fee=s.payFee/100;
 const freeU=s.freeChats*chatCost+s.freeCalls*callCost+infraU;
 const pRev=s.price/12;
@@ -70,17 +77,17 @@ const econ=c=>{const use=(s.paidChats*chatCost+c*callCost)*uf/12,cost=use+infraU
 const E=econ(s.paidCalls),pUse=E.use,paidU=E.cost,paidM=E.m;
 const topSpend=paid*s.topPct/100*s.topAmt,topCalls=topSpend/(s.callLen*s.rateCall);
 const callsM=free*s.freeCalls+paid*s.paidCalls*uf/12+topCalls,chatsM=free*s.freeChats+paid*s.paidChats*uf/12;
-const pm=callsM*s.callLen*2+(s.chatLK?chatsM*s.chatLen*2:0),L=lk(pm);
-const adv=callsM*callAdv+chatsM*chatAdv,otp=s.mau*s.otpPer*s.otpRate,fees=(paid*pRev+topSpend)*fee;
-const bill=L.c+s.host+s.db+otp+adv+fees,rev=paid*pRev+topSpend,profit=rev-bill;
+let pm=callsM*s.callLen*2+(s.chatLK?chatsM*s.chatLen*2:0),L=lk(pm);
+const adv=callsM*callAdv+chatsM*chatAdv,otp=s.mau*s.otpPer*s.otpRate*g,fees=(paid*pRev+topSpend)*fee*g;const lkGb=pm*s.lkMb/1024,lkBw=Math.max(0,lkGb-(L.p=='Ship'?250:3000))*(L.p=='Ship'?.12:.10)*u*g;L.c=L.c*g;
+const bill=L.c+lkBw+H+DB+otp+adv+fees,rev=paid*pRev+topSpend,profit=rev-bill;
 // recommended calls at target margin, keeping chats
 let recCalls=0;while(recCalls<10000&&econ(recCalls+1).pct>=s.margin/100)recCalls++;
 if(econ(0).pct<s.margin/100)recCalls=0;window._rec=recCalls;window._econ=econ;
 // free affordability within budget
-const room=s.budget-(L.c+s.host+s.db+otp+fees)-(paid*paidU-paid*infraU-paid*pRev*fee)+(topSpend-topCalls*callCost);
+const room=s.budget-(L.c+H+DB+otp+fees)-(paid*paidU-paid*infraU-paid*pRev*fee)+(topSpend-topCalls*callCost);
 const freeCallsAff=Math.max(0,room/free/callCost),freeChatsAff=Math.max(0,room/free/chatCost);
 const contribPaid=pRev*(1-fee)-pUse;const varFree=freeU-infraU;
-const bePaid=Math.ceil((s.host+s.db+otp+free*varFree)/Math.max(.01,contribPaid-0));
+const bePaid=Math.ceil((H+DB+otp+free*varFree)/Math.max(.01,contribPaid-0));
 const tc=a=>`${Math.floor(a/(s.chatLen*s.rateChat))} chats or ${Math.floor(a/(s.callLen*s.rateCall))} calls`;
 document.getElementById('kpis').innerHTML=[["Advisor cost per call",R2(callAdv)],["Our cost per call",R2(callCost)],["Cost per paid user / mo",R2(paidU)],["Margin per paid user / mo",`<span class="${cls(paidM)}">${R2(paidM)}</span>`],["Monthly bill",R(bill)],["Monthly profit",`<span class="${cls(profit)}">${R(profit)}</span>`]].map(k=>`<div class="kpi"><span>${k[0]}</span><b>${k[1]}</b></div>`).join('');
 document.getElementById('plans').innerHTML=`<div class="plan"><b>Free</b><div class="p">₹0</div>${s.freeChats} chats + ${s.freeCalls} calls every month</div>
@@ -90,9 +97,13 @@ const t=(id,h,r)=>document.getElementById(id).innerHTML=(h?`<tr>${h.map(x=>`<th>
 t('unit',['','Chat','Call'],[["Length",s.chatLen+' min',s.callLen+' min'],["Advisor payout",R2(chatAdv),R2(callAdv)],["LiveKit (user + advisor)",R2(chatLK),R2(callLK)],["Our cost",R2(chatCost),R2(callCost)],["User pays via top-up",R2(s.chatLen*s.rateChat),R2(s.callLen*s.rateCall)],["Our margin",R2(s.chatLen*s.rateChat-chatCost),R2(s.callLen*s.rateCall-callCost)]]);
 t('peruser',['','Free','Paid'],[["Revenue",R2(0),R2(pRev)],["Conversations cost",R2(freeU-infraU),R2(pUse)],["Hosting, DB, OTP share",R2(infraU),R2(infraU)],["Payment fee",R2(0),R2(pRev*fee)],["Total cost",R2(freeU),R2(paidU)],["Margin",`<span class="neg">${R2(-freeU)}</span>`,`<span class="${cls(paidM)}">${R2(paidM)} (${(E.pct*100).toFixed(1)}%)</span>`]]);
 t('topups',['Top-up','User gets','Our margin'],[50,100,200,500].map(a=>{const m=a-a*fee-(a/(s.callLen*s.rateCall))*callCost;return[R(a),tc(a),`<span class="${cls(m)}">${R(m)}</span>`]}));
-t('answers',null,[["Free chats affordable / free user / mo (budget "+R(s.budget)+")",freeChatsAff.toFixed(1)],["or free calls affordable / free user / mo",freeCallsAff.toFixed(1)],["Recommended calls in ₹"+s.price+" plan",recCalls+" calls + "+s.paidChats+" chats / yr"],["Paid users to break even",N(bePaid)+" ("+(bePaid/s.mau*100).toFixed(1)+"% of MAU)"],["Paid users now",N(paid)],["LiveKit plan picked",L.p+" · "+N(pm)+" participant-min"]]);
-rows=[["LiveKit ("+L.p+")",L.c],["Azure / hosting",s.host],["Database + backups",s.db],["OTP",otp],["Advisor payouts",adv],["Payment fees",fees]];
-const tot=bill;t('bill',['Item','Monthly','3 months'],[...rows.map(r=>[r[0],R(r[1]),R(r[1]*3)]),["Total bill",R(tot),R(tot*3),,,,,,,'tot'],["Revenue (plans earned + top-ups)",R(rev),R(rev*3)],["Profit / loss",`<span class="${cls(profit)}">${R(profit)}</span>`,`<span class="${cls(profit)}">${R(profit*3)}</span>`,,,,,,,'tot'],["Within budget?",bill-rev<=s.budget?'<span class="pos">Yes</span>':'<span class="neg">No</span>',""],["Upfront cash if paid users buy yearly",R(paid*s.price),""]]);
+t('answers',null,[["Free chats affordable / free user / mo (budget "+R(s.budget)+")",freeChatsAff.toFixed(1)],["or free calls affordable / free user / mo",freeCallsAff.toFixed(1)],["Recommended calls in ₹"+s.price+" plan",recCalls+" calls + "+s.paidChats+" chats / yr"],["Paid users to break even (before top-ups)",N(bePaid)+" ("+(bePaid/s.mau*100).toFixed(1)+"% of MAU)"],["Paid users now",N(paid)],["LiveKit plan picked",L.p+" · "+N(pm)+" participant-min"]]);
+const LKs="https://livekit.io/pricing";
+const items=[["LiveKit Cloud "+L.p+" (WebRTC participant-min)",`${N(pm)} min; ${L.p=='Ship'?'$50 incl 150k, $0.0005/min':'$500 incl 1.5M, $0.0004/min'}`,L.c,LKs],["LiveKit downstream data",`${lkGb.toFixed(1)} GB (${L.p=='Ship'?'250':'3,000'} GB incl)`,lkBw,LKs],...cloudItems,["MSG91 OTP SMS",`${N(s.mau*s.otpPer)} × ₹${s.otpRate}`,otp,"https://msg91.com/in/pricing/sms"],["Advisor payouts",`${N(callsM)} calls × ₹${callAdv.toFixed(2)} + ${N(chatsM)} chats × ₹${chatAdv.toFixed(2)}`,adv,""],["RazorpayX payouts plan (BB+ Core)",`₹${s.payoutPlan}/mo`,DB,"https://razorpay.com/pricing/"],["Razorpay payment gateway",`${s.payFee}% of ${R(paid*pRev+topSpend)}`,fees,"https://razorpay.com/pricing/"]];
+rows=items.map(x=>[x[0],x[2]]);const tot=bill;const dt='31 Oct 2026';
+t('bill',['Item','Unit price × quantity','Monthly','3 months','Source'],[...items.map(x=>[x[0],`<small>${x[1]}</small>`,R(x[2]),R(x[2]*3),x[3]?`<a href="${x[3]}" target="_blank" style="color:var(--navy)">source</a> <small>${dt}</small>`:'<small>your input</small>']),["Total bill"+(s.gst?" (incl 18% GST on vendors)":""),"",R(tot),R(tot*3),"",,,,,'tot'],["Revenue (plans earned + top-ups)","",R(rev),R(rev*3),""],["Profit / loss","",`<span class="${cls(profit)}">${R(profit)}</span>`,`<span class="${cls(profit)}">${R(profit*3)}</span>`,"",,,,,'tot'],["Cloud compare: AWS vs Azure","",R(window._cloud.aws),R(window._cloud.az),"monthly each"],["Upfront cash if paid users buy yearly","",R(paid*s.price),"",""]]);
+document.getElementById('sticky').innerHTML=`<small>Total monthly cost</small><b>${R(tot)}</b><small>3 months ${R(tot*3)} · profit <span class="${cls(profit)}">${R(profit)}</span>/mo</small>`;
+['reg','mau'].forEach(k=>{const e=document.getElementById(k+'_v');if(e)e.textContent=N(s[k]);const r=document.getElementById(k);if(r){r.value=s[k];if(k=='mau')r.max=s.reg}});
 rows.push(["TOTAL",tot],["Revenue",rev],["Profit",profit]);
 history.replaceState(null,'','#'+new URLSearchParams(Object.entries(S).filter(([k,v])=>v!==D[k])).toString());lucide.createIcons()}
 function applyRec(){S.paidCalls=window._rec;document.getElementById('paidCalls').value=S.paidCalls;calc()}
