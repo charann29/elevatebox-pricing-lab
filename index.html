@@ -36,11 +36,16 @@ html,body{overflow-x:hidden}.wrap>*,main,aside,.grid2>*,.plans>*{min-width:0}#mo
 .col.w .yel{background:none;color:#FACC15;padding:0}.badge{display:inline-block;background:#FACC15;color:#0b1a3a;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;margin-bottom:6px}
 .det{display:block;width:100%;margin-top:16px;font:inherit;font-weight:600;background:var(--navy);color:#fff;border:0;border-radius:12px;padding:14px;cursor:pointer}
 @media(max-width:400px){.row b{font-size:16px}.col{padding:10px}}
+body{transition:background-color .4s ease}.col{transition:background-color .4s,box-shadow .4s,border-color .4s}
+#lban{border-radius:12px;padding:12px 14px;margin:0 0 12px;font-weight:600;text-align:center;transition:background-color .4s,color .4s}
+.lossbg .col.cur{animation:pulseR 2s ease-in-out infinite}.gain .col.w{box-shadow:0 0 0 4px rgba(250,204,21,.35),0 0 28px rgba(250,204,21,.45)}
+@keyframes pulseR{0%,100%{box-shadow:0 0 0 0 rgba(185,28,28,0)}50%{box-shadow:0 0 0 6px rgba(185,28,28,.18),0 0 24px rgba(185,28,28,.25)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 footer{text-align:center;color:var(--sub);padding:20px;font-size:12px}
 @media print{.btns,aside{display:none}.wrap{grid-template-columns:1fr}}
 </style></head><body>
 <div id="landing"><div class="lg"><img src="elevatebox-logo.svg" alt="ElevateBox" height="44"></div>
-<div class="sl"><label>Registered users <b id="L_reg_v"></b></label><input type="range" id="L_reg" min="1000" max="1000000" step="1000"></div>
+<div id="lban"></div><div class="sl"><label>Registered users <b id="L_reg_v"></b></label><input type="range" id="L_reg" min="1000" max="1000000" step="1000"></div>
 <div class="sl"><label>Monthly active users <b id="L_mau_v"></b></label><input type="range" id="L_mau" min="100" max="1000000" step="100"></div><div class="sl"><label>Chat minutes / user / month (current plan, on LiveKit) <b id="L_chatMin_v"></b></label><input type="range" id="L_chatMin" min="0" max="600" step="10"></div>
 <div class="cmp" id="cmp"></div>
 <p style="text-align:center;color:var(--sub);font-size:11px;margin:10px 0 0" id="lnote">Estimates, see details · <a href="https://livekit.io/pricing" target="_blank" style="color:var(--navy)">Source: livekit.io/pricing</a></p>
@@ -186,13 +191,18 @@ rows.push(["TOTAL",tot],["Revenue",rev],["Profit",profit]);
 history.replaceState(null,'','#'+new URLSearchParams(Object.entries(S).filter(([k,v])=>v!==D[k])).toString()+(DET?'&details':''));renderLanding();lucide.createIcons()}
 function applyRec(){S.paidCalls=window._rec;S.paidChats=window._recCh;document.getElementById('paidCalls').value=S.paidCalls;document.getElementById('paidChats').value=S.paidChats;calc()}
 var DET=/details/.test(location.hash);
-function showDetails(on){DET=on;document.getElementById('details').hidden=!on;document.getElementById('landing').hidden=on;scrollTo(0,0);calc()}
+function showDetails(on){DET=on;if(on)document.body.style.backgroundColor='';document.getElementById('details').hidden=!on;document.getElementById('landing').hidden=on;scrollTo(0,0);calc()}
 function renderLanding(){const o=window._offer,O=window._out,C=window._cur;if(!o||!O||!C)return;const rev=O.bill+O.profit;
 ['reg','mau','chatMin'].forEach(k=>{const e=document.getElementById('L_'+k);e.value=S[k];if(k=='mau')e.max=S.reg;document.getElementById('L_'+k+'_v').textContent=N(S[k])});
 const pc=rev-C.curCost,pW=rev-o.after,sav=C.curCost-o.after,pb=sav>0?S.buildFee/sav:Infinity;
 const row=(l,v)=>`<div class="row"><small>${l}</small><b>${v}</b></div>`,pf=v=>`<span class="${ycls(v)}">${R(v)}</span>`;
+{const L=document.getElementById('landing'),bn=document.getElementById('lban'),k=Math.min(1,Math.max(0,-pc)/150000);
+L.classList.toggle('lossbg',pc<0);L.classList.toggle('gain',sav>0);
+if(!DET)document.body.style.backgroundColor=pc<0?`rgb(${Math.round(254-6*k)},${Math.round(242-40*k)},${Math.round(242-40*k)})`:'#eef4ff';
+bn.innerHTML=pc<0?`<i data-lucide="trending-down" style="width:16px;height:16px;vertical-align:-3px"></i> Losing ${R(-pc)} every month on the current plan<br><span style="color:#FACC15;background:var(--navy);border-radius:8px;padding:2px 8px;display:inline-block;margin-top:6px">Save ${R(sav)}/month with ElevateBox</span>`:`<i data-lucide="trending-up" style="width:16px;height:16px;vertical-align:-3px"></i> Saving ${R(sav)}/month with ElevateBox`;
+bn.style.background=pc<0?'#b91c1c':'var(--navy)';bn.style.color=pc<0?'#fff':'#FACC15';}
 window._land={mau:S.mau,chatMin:S.chatMin,current:{cost:C.curCost,profit:pc,p3:pc*3,p12:pc*12,lkChat:C.lkChatExtra,plan:C.plan},with:{cost:o.after,profit:pW,p3:pW*3-S.buildFee,p12:pW*12-S.buildFee,save:sav,payback:pb}};
-document.getElementById('cmp').innerHTML=`<div class="col"><h4>Current plan<br><small style="color:var(--sub)">chat + calls on LiveKit</small></h4>${row('Monthly cost',R(C.curCost))}${row('incl. LiveKit WebRTC minutes for chat ('+N(C.chatPmCur)+' min, '+C.plan+')','<span class="neg">+'+R(C.lkChatExtra)+'</span>')}${row('Monthly profit',pf(pc))}${row('3-month profit',pf(pc*3))}${row('12-month profit',pf(pc*12))}${row('Payback','—')}</div>
+document.getElementById('cmp').innerHTML=`<div class="col cur" style="${pc<0?`background:rgba(254,226,226,${(0.5+0.5*Math.min(1,-pc/150000)).toFixed(2)});border-color:#f5b5b5`:``}"><h4>Current plan<br><small style="color:var(--sub)">chat + calls on LiveKit</small></h4>${row('Monthly cost',R(C.curCost))}${row('incl. LiveKit WebRTC minutes for chat ('+N(C.chatPmCur)+' min, '+C.plan+')','<span class="neg">+'+R(C.lkChatExtra)+'</span>')}${row('Monthly profit',pf(pc))}${row('3-month profit',pf(pc*3))}${row('12-month profit',pf(pc*12))}${row('Payback','—')}</div>
 <div class="col w"><span class="badge">Recommended</span><h4>With ElevateBox build<br><small style="color:#FACC15">₹${N(S.buildFee)} one-time</small></h4>${row('Monthly cost',R(o.after))}${row('Saves / month',`<span class="yel">${R(sav)}</span>`)}${row('Monthly profit',pf(pW))}${row('3-month profit (after ₹'+N(S.buildFee)+')',pf(pW*3-S.buildFee))}${row('12-month profit (after ₹'+N(S.buildFee)+')',pf(pW*12-S.buildFee))}${row('Payback',isFinite(pb)?pb.toFixed(1)+' months':'—')}</div>`}
 document.getElementById('landing').addEventListener('input',e=>{const k=e.target.id.replace('L_','');if(!(k in S))return;S[k]=+e.target.value;if(S.mau>S.reg)S.mau=S.reg;const d=document.getElementById(k);if(d)d.value=S[k];calc()});
 if(DET){document.getElementById('details').hidden=false;document.getElementById('landing').hidden=true}
