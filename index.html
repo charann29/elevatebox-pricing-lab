@@ -3,31 +3,31 @@
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
 <style>
-:root{--ink:#172238;--navy:#101a2b;--sub:#657389;--blue:#3158e7;--blue2:#ebf0ff;--aqua:#19ad99;--red:#d34b56;--amber:#d38b28;--line:#e3e9f1;--bg:#f6f8fc}
+:root{--ink:#0b1a3a;--navy:#013186;--sub:#5b6b8c;--blue:#013186;--blue2:#eaf0fb;--blue3:#0145A6;--hover:#01276b;--aqua:#0f766e;--red:#b91c1c;--amber:#b45309;--line:#c9d6f2;--bg:#f5f8fe}
 *{box-sizing:border-box}body{margin:0;font-family:Lexend,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
-header{background:var(--navy);color:#fff;padding:18px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-header b{font-size:20px}header small{color:#aab6cc;display:block}
-.btns button{font:inherit;background:#22304a;color:#fff;border:0;border-radius:8px;padding:8px 12px;margin-left:6px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+header{background:#fff;color:var(--navy);border-bottom:4px solid var(--navy);padding:18px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header b{font-size:20px}header small{color:var(--sub);display:block}
+.btns button:hover{background:var(--hover)}.btns button{font:inherit;background:var(--navy);color:#fff;border:0;border-radius:8px;padding:8px 12px;margin-left:6px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
 .wrap{display:grid;grid-template-columns:340px 1fr;gap:20px;padding:20px 28px;max-width:1400px;margin:auto}
 @media(max-width:900px){.wrap{grid-template-columns:1fr}}
 .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 8px 32px rgba(24,40,79,.045);margin-bottom:16px}
 h3{margin:0 0 10px;font-size:15px;display:flex;gap:8px;align-items:center}h3 svg{width:18px;color:var(--blue)}
-details{border-top:1px solid var(--line);padding:8px 0}summary{cursor:pointer;font-weight:600}
+details{border-top:1px solid var(--line);padding:8px 0}summary{cursor:pointer;font-weight:600;color:var(--navy)}input:focus{outline:2px solid var(--blue3)}
 label{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:7px 0;color:var(--sub);font-size:13px}
 input,select{width:110px;font:inherit;padding:5px 7px;border:1px solid var(--line);border-radius:7px;text-align:right}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:16px}
-.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}.kpi span{color:var(--sub);font-size:12px}.kpi b{display:block;font-size:22px;margin-top:4px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}.kpi span{color:var(--sub);font-size:12px}.kpi{border-top:3px solid var(--navy)}.kpi b{display:block;color:var(--navy);font-size:22px;margin-top:4px}
 .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}@media(max-width:700px){.plans{grid-template-columns:1fr}}
-.plan{border:1px solid var(--line);border-radius:12px;padding:14px}.plan.hot{border-color:var(--blue);background:var(--blue2)}
+.plan{border:1px solid var(--line);border-radius:12px;padding:14px}.plan.hot{border:2px solid var(--navy);background:var(--blue2)}
 .plan .p{font-size:24px;font-weight:700}
-table{width:100%;border-collapse:collapse}td,th{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}th{color:var(--sub);font-weight:500;font-size:12px}
+table{width:100%;border-collapse:collapse}td,th{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}th{background:var(--blue2);color:var(--navy);font-weight:500;font-size:12px}
 tr.tot td{font-weight:700;border-top:2px solid var(--ink)}
-.pos{color:var(--aqua)}.neg{color:var(--red)}.tag{font-size:11px;background:#fff4e3;color:var(--amber);padding:2px 6px;border-radius:5px}
+.pos{color:var(--aqua)}.neg{color:var(--red)}.tag{font-size:11px;background:#fdf2dc;color:var(--amber);padding:2px 6px;border-radius:5px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:900px){.grid2{grid-template-columns:1fr}}
 footer{text-align:center;color:var(--sub);padding:20px;font-size:12px}
 @media print{.btns,aside{display:none}.wrap{grid-template-columns:1fr}}
 </style></head><body>
-<header><div><b>ElevateBox</b> · Guidance Platform Pricing<small>Prepared by Sai Charan L, Founder, ElevateBox · All vendor numbers are estimates</small></div>
+<header><div style="display:flex;gap:14px;align-items:center"><img src="elevatebox-logo.svg" alt="ElevateBox" height="40"><div><b>Guidance Platform Pricing</b><small>Prepared by Sai Charan L, Founder, ElevateBox · All vendor numbers are estimates</small></div></div>
 <div class="btns"><button onclick="share()"><i data-lucide="link"></i>Copy link</button><button onclick="csv()"><i data-lucide="download"></i>CSV</button><button onclick="print()"><i data-lucide="printer"></i>Print</button><button onclick="reset()"><i data-lucide="rotate-ccw"></i>Reset</button></div></header>
 <div class="wrap"><aside class="card" id="inputs"></aside><main>
 <div class="kpis" id="kpis"></div>
