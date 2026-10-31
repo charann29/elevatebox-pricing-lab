@@ -29,9 +29,23 @@ tr.tot td{font-weight:700;border-top:2px solid var(--ink)}
 input[type=range]{height:28px}input[type=range]::-webkit-slider-thumb{width:24px;height:24px}
 html,body{overflow-x:hidden}.wrap>*,main,aside,.grid2>*,.plans>*{min-width:0}#months small{font-size:10px;white-space:nowrap}@media(max-width:700px){#split b{width:auto!important}#split span{width:60px!important}#months small{font-size:8px}}.kpi b span{font-size:inherit}@media(max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
 @media(max-width:700px){#sticky{top:auto;bottom:0;left:0;right:0;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;padding:8px 14px}#sticky b{font-size:20px!important}header{padding:14px!important}.wrap{padding:12px;gap:12px}.legend{padding:8px 12px}body{padding-bottom:70px}.btns button{margin:4px 4px 0 0}.kpi b{font-size:18px}td,th{padding:6px 4px;font-size:12px}}
+#landing{max-width:720px;margin:auto;padding:18px 14px 30px}#landing .lg{display:flex;justify-content:center;margin:6px 0 14px}
+#landing .sl{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px}#landing .sl label{display:block;color:var(--sub)}#landing .sl b{float:right;color:var(--navy);font-size:16px}#landing input[type=range]{width:100%;accent-color:var(--navy)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}.col{border-radius:16px;padding:14px;border:1px solid var(--line);background:#fff}.col.w{background:var(--navy);color:#fff;border:3px solid #FACC15}
+.col h4{margin:0 0 10px;font-size:14px;min-height:38px}.row{padding:8px 0;border-top:1px solid var(--line)}.col.w .row{border-color:rgba(255,255,255,.18)}.row small{display:block;color:var(--sub);font-size:11px}.col.w .row small{color:#c9d6f2}.row b{font-size:19px}
+.col.w .yel{background:none;color:#FACC15;padding:0}.badge{display:inline-block;background:#FACC15;color:#0b1a3a;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;margin-bottom:6px}
+.det{display:block;width:100%;margin-top:16px;font:inherit;font-weight:600;background:var(--navy);color:#fff;border:0;border-radius:12px;padding:14px;cursor:pointer}
+@media(max-width:400px){.row b{font-size:16px}.col{padding:10px}}
 footer{text-align:center;color:var(--sub);padding:20px;font-size:12px}
 @media print{.btns,aside{display:none}.wrap{grid-template-columns:1fr}}
 </style></head><body>
+<div id="landing"><div class="lg"><img src="elevatebox-logo.svg" alt="ElevateBox" height="44"></div>
+<div class="sl"><label>Registered users <b id="L_reg_v"></b></label><input type="range" id="L_reg" min="1000" max="1000000" step="1000"></div>
+<div class="sl"><label>Monthly active users <b id="L_mau_v"></b></label><input type="range" id="L_mau" min="100" max="1000000" step="100"></div>
+<div class="cmp" id="cmp"></div>
+<p style="text-align:center;color:var(--sub);font-size:11px;margin:10px 0 0">Estimates, see details</p>
+<button class="det" onclick="showDetails(true)">Explain in detail</button></div>
+<div id="details" hidden><div style="padding:10px 28px 0"><button class="det" style="width:auto;margin:0;padding:8px 14px" onclick="showDetails(false)">← Simple view</button></div>
 <header><div style="display:flex;gap:14px;align-items:center"><img src="elevatebox-logo.svg" alt="ElevateBox" height="40"><div><b>Guidance Platform Pricing</b> <span class="tag" style="background:var(--blue2);color:var(--navy)"><i data-lucide="phone" style="width:12px;height:12px"></i> Audio calls only, no video</span><small>Prepared by Sai Charan L, Founder, ElevateBox · All vendor numbers are estimates</small></div></div>
 <div class="btns"><button onclick="share()"><i data-lucide="link"></i>Copy link</button><button onclick="csv()"><i data-lucide="download"></i>CSV</button><button onclick="print()"><i data-lucide="printer"></i>Print</button><button onclick="reset()"><i data-lucide="rotate-ccw"></i>Reset</button></div></header>
 <div id="sticky"></div><div class="legend"><span class="tbd"><i data-lucide="help-circle" style="width:12px;height:12px"></i>Client to decide</span><span style="background:var(--navy);color:#FACC15">Built by ElevateBox</span><span class="est">Estimate</span><span class="ver">Verified price</span><span class="yel">Profit</span><span style="background:#fde8e8;color:var(--red)">Loss</span></div><div class="wrap"><aside class="card" id="inputs"></aside><main>
@@ -46,7 +60,7 @@ footer{text-align:center;color:var(--sub);padding:20px;font-size:12px}
 <div class="card"><h3><i data-lucide="target"></i>Answers</h3><table id="answers"></table></div></div>
 <div class="card"><h3><i data-lucide="message-circle"></i>Free chat, verified <span class="tag">sources 31 Oct 2026</span></h3><div id="freechat"></div></div>
 <div class="card"><h3><i data-lucide="receipt"></i>Bill: monthly and 3 months <span class="tag">estimate</span></h3><table id="bill"></table></div>
-</main></div><footer>ElevateBox · elevatebox.in · Planning model, not a vendor quotation. Excludes GST, salaries, marketing, development.</footer>
+</main></div><footer>ElevateBox · elevatebox.in · Planning model, not a vendor quotation. Excludes GST, salaries, marketing, development.</footer></div>
 <script>
 const F=[
 ["Users",[["reg","Registered users",100000,1000,1000000,1000],["mau","Monthly active users",10000,100,1000000,100],["conv","Paid conversion %",20],["topPct","Paid users who top up %",25,0,100,1],["topAmt","Avg top-up per month ₹",150,0,1000,10],["ramp","Extra % topping up each month",5]]],
@@ -160,8 +174,18 @@ window._chat={opts:opts.map(o=>[o[0],Math.round(o[1])]),saved,pay};}
 document.getElementById('sticky').innerHTML=`<small>Total monthly cost</small><b>${R(tot)}</b><small>3 months ${R(tot*3)} · profit <span class="${ycls(profit)}">${R(profit)}</span>/mo</small>`;
 F.flatMap(g=>g[1]).filter(f=>f[3]).map(f=>f[0]).forEach(k=>{const e=document.getElementById(k+'_v');if(e)e.textContent=N(s[k]);const r=document.getElementById(k);if(r){r.value=s[k];if(k=='mau')r.max=s.reg}});
 rows.push(["TOTAL",tot],["Revenue",rev],["Profit",profit]);
-history.replaceState(null,'','#'+new URLSearchParams(Object.entries(S).filter(([k,v])=>v!==D[k])).toString());lucide.createIcons()}
+history.replaceState(null,'','#'+new URLSearchParams(Object.entries(S).filter(([k,v])=>v!==D[k])).toString()+(DET?'&details':''));renderLanding();lucide.createIcons()}
 function applyRec(){S.paidCalls=window._rec;S.paidChats=window._recCh;document.getElementById('paidCalls').value=S.paidCalls;document.getElementById('paidChats').value=S.paidChats;calc()}
+var DET=/details/.test(location.hash);
+function showDetails(on){DET=on;document.getElementById('details').hidden=!on;document.getElementById('landing').hidden=on;scrollTo(0,0);calc()}
+function renderLanding(){const o=window._offer,O=window._out;if(!o||!O)return;const rev=O.bill+O.profit,pw=O.profit,pW=O.profit+o.tot;
+['reg','mau'].forEach(k=>{const e=document.getElementById('L_'+k);e.value=S[k];if(k=='mau')e.max=S.reg;document.getElementById('L_'+k+'_v').textContent=N(S[k])});
+const row=(l,v)=>`<div class="row"><small>${l}</small><b>${v}</b></div>`,pf=v=>`<span class="${ycls(v)}">${R(v)}</span>`;
+window._land={mau:S.mau,without:{cost:O.bill,rev,profit:pw,p3:pw*3},with:{cost:o.after,rev,profit:pW,p3:pW*3-S.buildFee,payback:o.pb}};
+document.getElementById('cmp').innerHTML=`<div class="col"><h4>Without ElevateBox build</h4>${row('Active users',N(S.mau))}${row('Monthly cost',R(O.bill))}${row('Monthly revenue',R(rev))}${row('Monthly profit',pf(pw))}${row('3-month profit',pf(pw*3))}${row('Payback','—')}</div>
+<div class="col w"><span class="badge">Recommended</span><h4>With ElevateBox build<br><small style="color:#FACC15">₹${N(S.buildFee)} one-time</small></h4>${row('Active users',N(S.mau))}${row('Monthly cost',R(o.after))}${row('Monthly revenue',R(rev))}${row('Monthly profit',pf(pW))}${row('3-month profit (after ₹'+N(S.buildFee)+')',pf(pW*3-S.buildFee))}${row('Payback',o.pb.toFixed(1)+' months')}</div>`}
+document.getElementById('landing').addEventListener('input',e=>{const k=e.target.id.replace('L_','');if(!(k in S))return;S[k]=+e.target.value;if(S.mau>S.reg)S.mau=S.reg;const d=document.getElementById(k);if(d)d.value=S[k];calc()});
+if(DET){document.getElementById('details').hidden=false;document.getElementById('landing').hidden=true}
 function share(){navigator.clipboard.writeText(location.href);alert('Link copied')}
 function reset(){location.hash='';location.reload()}
 function csv(){let c='Item,Monthly INR,3 months INR\n'+rows.map(r=>`"${r[0]}",${Math.round(r[1])},${Math.round(r[1]*3)}`).join('\n')+'\n\nInput,Value\n'+Object.entries(S).map(e=>e.join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/csv'}));a.download='elevatebox-pricing.csv';a.click()}
